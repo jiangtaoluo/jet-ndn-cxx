@@ -85,6 +85,11 @@ enum {
   LinkDelegation                  = 31,
   LinkPreference                  = 30,
 
+  ////////////////////////////////
+  // JiangtaoLuo    8 Feb 2020
+  Identity                        = 801,
+  ////////////////////////////////
+
   NameComponentMin = 1,
   NameComponentMax = 65535,
 

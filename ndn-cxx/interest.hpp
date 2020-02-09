@@ -32,6 +32,11 @@
 
 namespace ndn {
 
+  ////////////////////////////////
+  // Jiangtao Luo, 8 Feb 2020
+  typedef std::string UID;  // type of user identtiy
+  ////////////////////////////////
+  
 class Data;
 
 /** @var const unspecified_duration_type DEFAULT_INTEREST_LIFETIME;
@@ -44,6 +49,26 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {
 public:
+
+  ////////////////////////////////
+  // Getter and Setter of user identity
+  // Jiangtao Luo, 8 Feb 2020
+  const UID&
+  getIdentity() const
+  {
+    return m_identiy;
+  }
+
+  Interest&
+  setIdentity(const UID uid)
+  {
+    m_identiy = uid;
+    m_wire.reset();
+    return *this;
+  }
+  ////////////////////////////////
+  
+  
   class Error : public tlv::Error
   {
   public:
@@ -475,6 +500,12 @@ public:
 private:
   static boost::logic::tribool s_defaultCanBePrefix;
 
+  ////////////////////////////////
+  // User identity
+  // Jiangtao Luo, 8 Feb 2020
+  UID m_identiy;
+  ////////////////////////////////
+
   Name m_name;
   Selectors m_selectors; // NDN Packet Format v0.2 only
   mutable bool m_isCanBePrefixSet;
@@ -486,6 +517,8 @@ private:
   mutable Block m_wire;
 
   friend bool operator==(const Interest& lhs, const Interest& rhs);
+
+  
 };
 
 NDN_CXX_DECLARE_WIRE_ENCODE_INSTANTIATIONS(Interest);

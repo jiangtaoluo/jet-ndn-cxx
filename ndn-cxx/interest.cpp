@@ -104,8 +104,19 @@ Interest::encode02(EncodingImpl<TAG>& encoder) const
   //                Nonce
   //                InterestLifetime?
   //                ForwardingHint?
+  //                Identity // Jiangtao Luo, 8 Feb 2020
 
   // (reverse encoding)
+
+  ////////////////////////////////
+  // Identity. Jiangtao 8 Feb 2020
+  if(m_identiy.size() > 0) {
+    totalLength += prependStringBlock(encoder,
+                                      tlv::Identity,
+                                      getIdentity());
+  }
+  ////////////////////////////////
+  
 
   // ForwardingHint
   if (getForwardingHint().size() > 0) {
@@ -152,8 +163,19 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
   //                InterestLifetime?
   //                HopLimit?
   //                Parameters?
+  //                Identity // Jiangtao Luo. 8 Feb 2020
 
   // (reverse encoding)
+
+    ////////////////////////////////
+  // Identity. Jiangtao 8 Feb 2020
+  if(m_identiy.size() > 0) {
+    totalLength += prependStringBlock(encoder,
+                                      tlv::Identity,
+                                      getIdentity());
+  }
+  ////////////////////////////////
+  
 
   // Parameters
   if (hasParameters()) {
@@ -289,6 +311,14 @@ Interest::decode02()
     m_forwardingHint = DelegationList();
   }
 
+  ////////////////////////////////
+  // Identity? Jiangtao. 8 Feb 2020
+  if (element != m_wire.elements_end() && element->type() == tlv::Identity){
+    m_identiy = readString(*element);
+    ++element;
+  }
+  ////////////////////////////////
+
   return element == m_wire.elements_end();
 }
 
@@ -393,6 +423,17 @@ Interest::decode03()
         lastElement = 8;
         break;
       }
+       ////////////////////////////////
+       // Jiangtao Luo. 8 Feb 2020
+      case tlv::Identity: {
+        if (lastElement >= 9) {
+          BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
+        }
+        m_parameters = *element;
+        lastElement = 9;
+        break;
+      }
+      ////////////////////////////////
       default: {
         if (tlv::isCriticalType(element->type())) {
           BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
