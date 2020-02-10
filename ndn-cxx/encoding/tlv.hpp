@@ -86,6 +86,24 @@ enum {
   LinkPreference                  = 30,
 
   ////////////////////////////////
+  /**
+  * Jzq add the next three lines: type of 'EmergencyInd' \ 'Nonce' \ 'LastHop'  * TLV-TYPE 1-byte encoding:
+  * 0,3,4,35,37~79(reserved for future assignment);
+  * 101~127(related to forwarder);
+  * 128~252(for application use);
+  */
+  EmergencyInd = 101,
+  LastHop = 102,
+  ////////////////////////////////
+  ////////////////////////////////
+  /**
+   * enableingPush-beacon approach
+   * 18/4/2019
+   */
+  ObjectSize = 103,  // "beacon" field
+  InterestChunksNum = 104, // the number of fake interests
+  ////////////////////////////////////////////////////
+  ////////////////////////////////
   // JiangtaoLuo    8 Feb 2020
   Identity                        = 801,
   ////////////////////////////////
