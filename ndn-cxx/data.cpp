@@ -23,6 +23,7 @@
 #include "ndn-cxx/encoding/block-helpers.hpp"
 #include "ndn-cxx/util/sha256.hpp"
 
+#include "ndn-cxx/util/random.hpp"  // jet, jzq,: for fastPush
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
@@ -53,9 +54,33 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
   //            Content?
   //            SignatureInfo
   //            SignatureValue
+  ////////////////////////////////
+  // Jiangtao. 10 Feb 2020
+  //            EI
+  //            Nonce
+  ////////////////////////////////
 
   size_t totalLength = 0;
+  
+  /////////////////////
+  /**
+   * Jiangtao Luo. 10 Feb 2020  
+   * Jzq Mar.14 .2019
+  */
 
+  // Nonce
+  if(hasNonce()){
+    uint32_t nonce = getNonce(); // if nonce was unset, getNonce generates a random nonce
+    totalLength += encoder.prependByteArrayBlock(tlv::Nonce, reinterpret_cast<uint8_t*>(&nonce), sizeof(nonce));
+  }
+
+  // EmergencyInd
+  if(m_emergencyInd.size()>0){
+     totalLength += prependStringBlock(encoder,tlv::EmergencyInd, getEmergencyInd());
+  }
+ 
+  ////////////////////////////////
+  
   // SignatureValue
   if (!wantUnsignedPortionOnly) {
     if (!m_signature) {
@@ -127,6 +152,11 @@ Data::wireDecode(const Block& wire)
   //            Content?
   //            SignatureInfo
   //            SignatureValue
+  ////////////////////////////////
+  // Jiangtao Luo. JZQ. 10 Feb 2020
+  //            EI
+  //            Nounce
+  ////////////////////////////////
 
   m_wire = wire;
   m_wire.parse();
@@ -177,6 +207,35 @@ Data::wireDecode(const Block& wire)
         lastElement = 5;
         break;
       }
+      ////////////////////////////////
+       /**
+     * decode EmergencyInd Nonce
+     * Jzq Mar.14. 2019
+     * Jet. 10 Feb 2020
+     */
+      case tlv::EmergencyInd: {
+        if (lastElement >= 6) {
+            BOOST_THROW_EXCEPTION(Error("EmergencyInd element is out of order"));
+        }
+        m_emergencyInd = readString(*element);
+        lastElement = 6;
+        break;
+        }
+      case tlv::Nonce: {
+        uint32_t nonce = 0;
+        if (lastElement >= 7) {
+            BOOST_THROW_EXCEPTION(Error("Nonce element is out of order"));
+        }
+        if (element->value_size() != sizeof(nonce)) {
+            BOOST_THROW_EXCEPTION(Error("Nonce element is malformed"));
+        }
+        std::memcpy(&nonce, element->value(), sizeof(nonce));
+        m_nonce = nonce;
+        lastElement = 7;
+        break;
+      }
+
+      ////////////////////////////////
       default: {
         if (tlv::isCriticalType(element->type())) {
           BOOST_THROW_EXCEPTION(Error("unrecognized element of critical type " +
@@ -191,6 +250,36 @@ Data::wireDecode(const Block& wire)
     BOOST_THROW_EXCEPTION(Error("SignatureInfo element is missing"));
   }
 }
+
+////////////////////////////////
+/**
+ * Jzq add Data field accesors EmergencyInd Nonce
+ * @param ei EmergencyInd values,which come from enum class EI
+ *
+ */
+Data&
+Data::setEmergencyInd(const EI ei)
+{
+    m_emergencyInd = ei;
+    m_wire.reset();
+    return *this;
+}
+uint32_t
+Data::getNonce() const
+{
+  if(!m_nonce){
+    m_nonce = random::generateWord32();
+  }
+  return *m_nonce;
+}
+Data&
+Data::setNonce(uint32_t nonce)
+{
+  m_nonce = nonce;
+  m_wire.reset();
+  return *this;
+}
+////////////////////////////////
 
 const Name&
 Data::getFullName() const

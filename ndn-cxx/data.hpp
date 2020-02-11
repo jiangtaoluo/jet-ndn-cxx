@@ -30,6 +30,11 @@
 
 namespace ndn {
 
+  ////////////////////////////////
+  // jzq: EI type
+  typedef std::string EI;
+  ////////////////////////////////
+
 /** @brief Represents a Data packet.
  */
 class Data : public PacketBase, public std::enable_shared_from_this<Data>
@@ -118,6 +123,33 @@ public:
   getFullName() const;
 
 public: // Data fields
+  ////////////////////////////////
+  /**
+ * getter and setter of EmergencyInd、Nonce
+ * Jzq. Mar 12, 2019
+ */
+  const EI&
+  getEmergencyInd() const
+  {
+      return m_emergencyInd;
+  }
+
+  Data&
+  setEmergencyInd(const EI ei);
+
+  bool
+  hasNonce() const
+  {
+      return m_nonce.has_value();
+  }
+
+  uint32_t
+  getNonce() const;
+
+  Data&
+  setNonce(uint32_t nonce);
+  ////////////////////////////////
+  
   /** @brief Get name
    */
   const Name&
@@ -240,6 +272,15 @@ private:
   Block m_content;
   Signature m_signature;
 
+  ////////////////////////////////
+    /**
+   * Jzq add 'EmergencyInd' 'Nonce'
+   */
+  EI m_emergencyInd;
+  
+  mutable optional<uint32_t> m_nonce;
+  ////////////////////////////////
+  
   mutable Block m_wire;
   mutable Name m_fullName; ///< cached FullName computed from m_wire
 };
