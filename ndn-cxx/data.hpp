@@ -125,7 +125,7 @@ public:
 public: // Data fields
   ////////////////////////////////
   /**
- * getter and setter of EmergencyInd、Nonce
+ * getter and setter of EmergencyInd and Nonce
  * Jzq. Mar 12, 2019
  */
   const EI&
