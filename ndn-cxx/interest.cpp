@@ -105,8 +105,17 @@ Interest::encode02(EncodingImpl<TAG>& encoder) const
   //                InterestLifetime?
   //                ForwardingHint?
   //                Identity // Jiangtao Luo, 8 Feb 2020
+  //                HopCount // Jiangtao Luo, 18 Mar 2020
 
   // (reverse encoding)
+
+  ////////////////////////////////
+  // HopCount.
+  // Jiangtao Luo. 18 Mar 2020
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                tlv::HopCount,
+                                                getHopCount());
+  ////////////////////////////////
 
   ////////////////////////////////
   // Identity. Jiangtao 8 Feb 2020
@@ -164,8 +173,17 @@ Interest::encode03(EncodingImpl<TAG>& encoder) const
   //                HopLimit?
   //                Parameters?
   //                Identity // Jiangtao Luo. 8 Feb 2020
+  //                HopCount // Jiangtao Luo 18 Mar 2020
 
   // (reverse encoding)
+
+  ////////////////////////////////
+  // HopCount.
+  // Jiangtao Luo. 18 Mar 2020
+  totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                tlv::HopCount,
+                                                getHopCount());
+  ////////////////////////////////
 
     ////////////////////////////////
   // Identity. Jiangtao 8 Feb 2020
@@ -319,6 +337,13 @@ Interest::decode02()
   }
   ////////////////////////////////
 
+  ////////////////////////////////
+  // HopCount? Jiangtao Luo. 18 Mar 2020
+  if (element != m_wire.elements_end() && element->type() == tlv::HopCount) {
+    m_hopCount = readNonNegativeInteger(*element);
+    ++element;
+  }
+
   return element == m_wire.elements_end();
 }
 
@@ -429,9 +454,20 @@ Interest::decode03()
         if (lastElement >= 9) {
           BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
         }
-        m_parameters = *element;
+        m_identiy = readString(*element);
         lastElement = 9;
         break;
+      }
+      ////////////////////////////////
+      // Jiangtao Luo. 19 Mar 2020
+      case tlv::HopCount: {
+        if (lastElement >= 10) {
+          BOOST_THROW_EXCEPTION(Error("Parameters element is out of order"));
+        }
+        m_hopCount = readNonNegativeInteger(*element);
+        lastElement = 10;
+        break;
+      
       }
       ////////////////////////////////
       default: {

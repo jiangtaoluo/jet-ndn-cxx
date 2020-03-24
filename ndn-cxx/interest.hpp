@@ -49,7 +49,24 @@ const time::milliseconds DEFAULT_INTEREST_LIFETIME = 4_s;
 class Interest : public PacketBase, public std::enable_shared_from_this<Interest>
 {
 public:
+  ////////////////////////////////
+  // Getter and Setter of HopCount
+  // Jiangtao Luo, 18 Mar 2020
+  uint32_t
+  getHopCount() const
+  {
+    return m_hopCount;
+  }
 
+  Interest&
+  setHopCount(uint32_t count)
+  {
+    m_hopCount = count;
+    m_wire.reset();
+    return *this;
+  }
+  ////////////////////////////////
+  
   ////////////////////////////////
   // Getter and Setter of user identity
   // Jiangtao Luo, 8 Feb 2020
@@ -504,6 +521,11 @@ private:
   // User identity
   // Jiangtao Luo, 8 Feb 2020
   UID m_identiy;
+  ////////////////////////////////
+  ////////////////////////////////
+  // Hop count
+  // Jiangtao Luo, 18 Mar 2020
+  uint8_t m_hopCount;
   ////////////////////////////////
 
   Name m_name;

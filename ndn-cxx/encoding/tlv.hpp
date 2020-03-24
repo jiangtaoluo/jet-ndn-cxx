@@ -106,6 +106,9 @@ enum {
   ////////////////////////////////
   // JiangtaoLuo    8 Feb 2020
   Identity                        = 801,
+  
+  // Hop count, Mar 18, 2020. Jiangtao Luo 
+  HopCount  = 802,
   ////////////////////////////////
 
   NameComponentMin = 1,
