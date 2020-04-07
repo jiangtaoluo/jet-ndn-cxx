@@ -79,6 +79,14 @@ typedef SimpleTag<PrefixAnnouncementHeader, 15> PrefixAnnouncementTag;
  */
 typedef SimpleTag<uint64_t, 0x60000000> HopCountTag;
 
+
+////////////////////////////////
+// CchTag: a packet tag for sending Interest on CCH
+// This tag can be attached to Interest.
+// Jiangtao Luo. 31 Mar 2020
+  typedef SimpleTag<uint64_t, 0x60000001> CchTag;
+////////////////////////////////
+
 } // namespace lp
 } // namespace ndn
 

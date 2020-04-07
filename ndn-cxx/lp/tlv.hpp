@@ -47,6 +47,10 @@ enum {
   TxSequence = 840,
   NonDiscovery = 844,
   PrefixAnnouncement = 848,
+  ////////////////////////////////
+  // Jiangtao Luo. 32 Mar 2020
+  CchTag = 849,
+  ////////////////////////////////
 };
 
 enum {
