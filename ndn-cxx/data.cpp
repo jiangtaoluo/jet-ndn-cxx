@@ -24,6 +24,7 @@
 #include "ndn-cxx/util/sha256.hpp"
 
 #include "ndn-cxx/util/random.hpp"  // jet, jzq,: for fastPush
+#include "ndn-cxx/util/time.hpp" // Jiangtao Luo. 12 Apr 2020
 namespace ndn {
 
 BOOST_CONCEPT_ASSERT((boost::EqualityComparable<Data>));
@@ -36,7 +37,9 @@ static_assert(std::is_base_of<tlv::Error, Data::Error>::value,
 Data::Data(const Name& name)
   : m_name(name)
   , m_content(tlv::Content)
+  , m_tsBorn(-1) // Jiangtao Luo. 13 Apr 2020
 {
+  
 }
 
 Data::Data(const Block& wire)
@@ -59,10 +62,24 @@ Data::wireEncode(EncodingImpl<TAG>& encoder, bool wantUnsignedPortionOnly) const
   //            EI
   //            Nonce
   ////////////////////////////////
+  // Jiangtao Luo. 12 Apr 2020
+  //            BornTime
+  ////////////////////////////////
 
   size_t totalLength = 0;
-  
+
+  ////////////////////////////////
+  // Jiangtao Luo. 12 Apr 2020
+
+  // Born Time
+  //time::system_clock::TimePoint now = time::system_clock::now();
+  if (m_tsBorn >= 0) {
+      totalLength += prependNonNegativeIntegerBlock(encoder,
+                                                  tlv::BornTime,
+                                                 getBornTime());
+  }
   /////////////////////
+
   /**
    * Jiangtao Luo. 10 Feb 2020  
    * Jzq Mar.14 .2019
@@ -157,6 +174,10 @@ Data::wireDecode(const Block& wire)
   //            EI
   //            Nounce
   ////////////////////////////////
+  ////////////////////////////////
+  // Jiangtao Luo. 12 Apr
+  //            BornTime
+  ////////////////////////////////
 
   m_wire = wire;
   m_wire.parse();
@@ -235,6 +256,20 @@ Data::wireDecode(const Block& wire)
         break;
       }
 
+      ////////////////////////////////
+      ////////////////////////////////
+      // Jiangtao Luo. 12 Apr 2020
+      case tlv::BornTime: {
+        if (lastElement >= 8) {
+          BOOST_THROW_EXCEPTION(Error("BornTime element is out of order"));
+        }
+         m_tsBorn = readNonNegativeInteger(*element);
+        // uint64_t ts = 0;
+        // std::memcpy(&ts, element->value(), sizeof(ts));
+        // m_tsBorn = ts;
+        lastElement = 8;
+        break;
+      }
       ////////////////////////////////
       default: {
         if (tlv::isCriticalType(element->type())) {
@@ -418,6 +453,16 @@ operator<<(std::ostream& os, const Data& data)
   os << std::endl;
 
   return os;
+}
+
+////////////////////////////////
+// Jiangtao Luo. 12 Apr 2020
+Data&
+Data::setBornTime(uint64_t ts)
+{
+  m_tsBorn = ts;
+  m_wire.reset();
+  return *this;
 }
 
 } // namespace ndn

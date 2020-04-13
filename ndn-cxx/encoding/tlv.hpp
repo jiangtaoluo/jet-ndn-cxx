@@ -104,6 +104,10 @@ enum {
   InterestChunksNum = 104, // the number of fake interests
   ////////////////////////////////////////////////////
   ////////////////////////////////
+  // Born time of Data packet
+  // Jiangtao Luo. 12 Apr 2020
+  BornTime = 128,
+  ////////////////////////////////
   // JiangtaoLuo    8 Feb 2020
   Identity                        = 801,
   

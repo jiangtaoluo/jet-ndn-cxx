@@ -28,6 +28,7 @@
 #include "ndn-cxx/detail/packet-base.hpp"
 #include "ndn-cxx/encoding/block.hpp"
 
+
 namespace ndn {
 
   ////////////////////////////////
@@ -124,6 +125,16 @@ public:
 
 public: // Data fields
   ////////////////////////////////
+  // Jiangtao Luo. 12 Apr 2020
+  const uint64_t
+  getBornTime() const
+  {
+    return m_tsBorn;
+  }
+
+  Data&
+  setBornTime(uint64_t ts);
+
   /**
  * getter and setter of EmergencyInd and Nonce
  * Jzq. Mar 12, 2019
@@ -280,6 +291,11 @@ private:
   
   mutable optional<uint32_t> m_nonce;
   ////////////////////////////////
+  ////////////////////////////////
+  // Timestamp of Born Time. Jiangtao Luo. 12 Apr 2020
+  int64_t m_tsBorn;
+  ////////////////////////////////
+  
   
   mutable Block m_wire;
   mutable Name m_fullName; ///< cached FullName computed from m_wire
